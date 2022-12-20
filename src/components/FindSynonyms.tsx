@@ -7,13 +7,15 @@ type Synonym = {
 const BASE_URL = "https://api.datamuse.com";
 
 export const FindSynonyms = () => {
-  const [word, setWord] = useState("");
+  const [word, setWord] = useState<any>("");
   const [synonyms, setSynonyms] = useState<Synonym[]>([]);
+  const [clicked, isClicked] = useState<boolean>(false);
 
   const fetchSynonyms = (word: string) => {
     fetch(`${BASE_URL}/words?rel_syn=${word}`)
       .then((response) => response.json())
       .then(setSynonyms);
+    isClicked(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,7 +27,6 @@ export const FindSynonyms = () => {
     setWord(newWord);
     fetchSynonyms(newWord);
   };
-
   return (
     <div>
       {" "}
@@ -50,15 +51,19 @@ export const FindSynonyms = () => {
         </button>
       </form>
       <ul className="grid justify-center items-center grid-cols-4 mx-16  text-2xl mt-8 text-[#303030] gap-6">
-        {synonyms.map((synonym) => (
-          <li
-            onClick={() => handleSynonymClicked(synonym.word)}
-            className="text-center cursor-pointer hover:scale-110 hover:duration-300 bg-white rounded-xl drop-shadow-xl"
-            key={synonym.word}
-          >
-            {synonym.word}
-          </li>
-        ))}
+        {synonyms.length != 0
+          ? synonyms.map((synonym) => (
+              <li
+                onClick={() => handleSynonymClicked(synonym.word)}
+                className={`${
+                  synonym.score > 1500 ? "bg-green-600" : "bg-green-300"
+                } text-center cursor-pointer hover:scale-110 hover:duration-300 rounded-xl drop-shadow-xl`}
+                key={synonym.word}
+              >
+                {synonym.word}
+              </li>
+            ))
+          : clicked && <h1 className="block w-full text-white">Can't find any synonyms</h1>}
       </ul>
     </div>
   );
